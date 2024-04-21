@@ -1,0 +1,218 @@
+<%- include('./partials/header', { customStyles: '/stylesheets/singlePost.css' }) %>
+<div class="main">
+<div class="single-post-container">
+  <div class="single-post">
+    <div class="box">
+    <img src="/images/Upload/<%= post.image %>" class="single-post-image" alt="...">
+    </div>
+  </div>
+
+  <div class="details-container">
+    <div class="top-details">
+      <div class="save-unsave-singlePost">
+        <% if(selectedFolder && selectedFolder.posts.includes(post.id)) { %>
+        <form action="/unsave-from-folder?redirectBack=/posts/<%= post._id %>" method="post">
+          <input type="hidden" name="postId" value="<%= post.id %>">
+          <% if(selectedFolder && selectedFolder._id) { %>
+            <input type="hidden" name="folderId" value="<%= selectedFolder._id %>">
+          <% } %>
+           
+          <button type="submit" class="unSave-singlePost"> Saved </button>
+        </form>
+        <% } else { %>
+        <form action="/save-to-folder?redirectBack=/posts/<%= post._id %>" method="post">
+          <input type="hidden" name="postId" value="<%= post.id %>">
+          <input type="hidden" name="folderId" value="<%= selectedFolder._id %>">
+          <button type="submit" class="Save-singlePost"> Save </button>
+        </form>
+        <% } %>
+      </div>
+    <div class="single-post-overlay">
+      <h5 class="titleImg"><%= post.imageText %></h5>
+      <div class="description"><%= post.description %></div>
+    </div>
+
+    <div class="post-user-detail-container">
+    <div class="user-details-container">
+      <div class="profile-picture">
+        <a class="userName" href="/<%= post.user.username %>">
+        <img src="/images/Upload/<%= post.user.dp %>" alt="">
+        </a>
+      </div>
+      <div class="user-details">
+        <% if(loggedInUser && loggedInUser.username === post.user.username) { %>
+          <a href="/profile">
+            <div class="userName">
+            <%= post.user.username %>
+            </div>
+          </a>
+        <% } else { %>
+        <a href="/<%= post.user.username %>">
+        <div class="userName">
+        <%= post.user.username %>
+        </div>
+      </a>
+      <% } %>
+      <div class="followers"><%= post.user.followers.length %> followers</div>
+      </div>        
+    </div>
+     
+    <div class="follow-unfollow-btn"> 
+      <% if (loggedInUser && loggedInUser.username !== post.user.username) { %>
+        <% if (loggedInUser.following.includes(post.user._id)) { %>
+          <form action="/<%= post.user.username %>/unfollow?redirectBack=/posts/<%= post._id %>" method="post">
+            <button class="unfollow" type="submit">Following</button>
+          </form>
+        <% } else { %>
+          <form action="/<%= post.user.username %>/follow?redirectBack=/posts/<%= post._id %>" method="post">
+            <button class="follow" type="submit">Follow</button>
+          </form>
+        <% } %>
+      <% } %>
+    </div> 
+  </div>
+
+ 
+  <!-- Display comments -->
+  <div class="comments">
+    <div class="comment-dropbox">
+      <div class="comments-heading">Comments</div>
+        <i class="drop-down-up-icon ri-arrow-up-s-line" onclick="toggleCommentDropdown()"></i>
+    </div>
+
+    <div class="comment-dropdown-menu" id="commentDropdown">
+      <div class="comment-scroll-container">
+        <% post.comments.forEach(function (comment) { %>
+          <div class="list-of-comments">
+            <div class="comments-details-section">
+            <div class="commented-user-profile-img">
+              <img src="/images/Upload/<%= comment.user.dp %>" alt="">
+            </div>
+            <div class="commented-user-details-deleteAction">
+              <div class="commented-user-details-message">
+              <div class="commented-username">
+                <%= comment.user && comment.user.username %>
+              </div>
+              <div class="user-comment">
+              <%= comment.text %>
+              </div>
+            </div>
+           <!-- Add an ID to the form for easier targeting with JavaScript -->
+            <div class="commented-delete-action">
+              <% if (loggedInUser && comment.user._id.equals(loggedInUser._id)) { %>
+                <form id="deleteCommentForm_<%= comment._id %>" action="/posts/<%= post._id %>/comments/<%= comment._id %>?_method=DELETE" method="post">
+                  <button hidden type="submit">Delete Comment</button>
+                  <i class="ri-more-fill" onclick="toggleDeleteButton('<%= comment._id %>')"></i>
+                  <div class="delete-functionality-btn" id="deleteBtn_<%= comment._id %>" onclick="submitDeleteForm('<%= comment._id %>')">Delete</div>
+                </form>
+                
+              <% } %>
+            </div>
+            <script>
+              addBlurEventListener('<%= comment._id %>');
+            </script>
+            </div>
+            </div>
+          </div>
+        <% }); %>
+  </div>
+</div>
+</div>
+</div>
+  <!-- Add like and comment functionality here -->
+  <div class="like-comment-section">
+    <% if (loggedInUser) { %>
+      <div class="likes-comments-display">
+        <div class="comment-counts"><%= post.comments.length %> Comments</div>
+        <form action="/posts/<%= post._id %>/like" method="post" class="like-form">
+          <button hidden class="post-like-unlike-button" type="submit"></button>
+          <div class="likes">
+              <div class="likes-counts"><%= post.likes.length %> </div>
+              <% if (loggedInUser && post.likes.some(like => like.user && like.user.equals(loggedInUser._id))) { %>
+                  <div class="already-like-unlike-btn">
+                      <i class="already-like-icon ri-heart-fill"></i>
+                  </div>
+              <% } else { %>
+                  <div class="like-unlike-btn">
+                      <i class="like-icon ri-heart-line"></i>
+                  </div>
+              <% } %>
+          </div>
+      </form> 
+      </div>
+      <div class="post-comments">
+        <form action="/posts/<%= post._id %>/comment" method="post">
+          <div class="comment-input-and-current-user-logo">
+          <div class="loggedIn-user-profile-images">
+            <img src="/images/Upload/<%= user.dp %>" alt="">
+          </div>
+          <input class="comments-detail" name="comment" placeholder="Add a comment">
+          <button hidden type="submit">Comment</button>
+        </div>
+        </form>
+      </div>
+    <% } %>
+  </div>
+</div>
+</div>
+
+<div class="remaining-posts-container">
+  <h2>More to explore</h2>
+  <div class="remaining-posts">
+    <% remainingPosts.forEach(function (remainingPost) { %>
+      <div class="box" onmouseover="handleHoverPosts(this, event)" onmouseout="handleHoverPosts(this, event)">
+        <a href="/posts/<%= remainingPost._id %>">
+          <div class="image-overlay"></div>
+          <img src="/images/Upload/<%= remainingPost.image %>" class="card-img-top" alt="...">
+        </a>
+        <div class="save-Boards-singlePost">
+          <div class="userCreatedBoard">
+            <div class="boardTitle" onclick="toggleBoardsBtn(this, '<%= remainingPost._id %>')" data-toggle-btn="0">
+            <%= selectedFolder.name  %><i class="ri-arrow-down-s-line"></i>
+            </div>
+            <div class="boards-list" id="Board-<%= remainingPost._id %>">
+              <div class="header-bords-list">Save</div>
+              <div class="list-of-folder">
+               <div class="results-boards"> All boards</div>              
+              <% folders.forEach(folder => { %>
+               <!-- Use a link or button to trigger the /select-folder route -->
+               <a class="boars-items" href="/select-folder/<%= folder._id %>?redirectBack=/posts/<%= post._id %>">
+                  <%= folder.name %>
+               </a>              
+              <% }); %>
+            </div>
+            </div>
+          </div>
+          <div class="save-unsave">
+            <% if(selectedFolder && selectedFolder.posts.includes(remainingPost.id)) { %>
+            <form action="/unsave-from-folder?redirectBack=/posts/<%= post._id %>" method="post">
+              <input type="hidden" name="postId" value="<%= remainingPost.id %>">
+              <% if(selectedFolder && selectedFolder._id) { %>
+                <input type="hidden" name="folderId" value="<%= selectedFolder._id %>">
+              <% } %>
+               
+              <button type="submit" class="unSave"> Saved </button>
+            </form>
+            <% } else { %>
+            <form action="/save-to-folder?redirectBack=/posts/<%= post._id %>" method="post">
+              <input type="hidden" name="postId" value="<%= remainingPost.id %>">
+              <input type="hidden" name="folderId" value="<%= selectedFolder._id %>">
+              <button type="submit" class="Save"> Save </button>
+            </form>
+            <% } %>
+          </div>
+        </div>
+        <% if(remainingPost.imageLink) {%>
+        <a class="Link-singlePost" href="<%= remainingPost.imageLink %>" >
+            <i class="ri-arrow-right-up-line"></i>
+        <h5 class="post-link"><%= remainingPost.imageLink %></h5>
+        </a>
+        <% } %>
+    </div>
+    <% }); %>
+  </div>
+</div>
+</div>
+
+
+<%- include('./partials/footer',  {customScript: '/javascripts/singlepost.js'}) %>

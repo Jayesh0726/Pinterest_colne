@@ -1,0 +1,273 @@
+<%- include('./partials/header', { customStyles: '/stylesheets/profile.css' }) %>
+
+<div class="container_profile">
+  <div class="post_card">
+    <div class="profile-picture">
+      <% if (user && user.dp) { %>
+        <img src="/images/Upload/<%= user.dp %>" alt="Profile Picture">
+      <% } %>
+    </div>
+    <h2 class="name"><%= user ? user.fullname : 'Unknown' %></h2>
+    <h3 class="username"><img src="https://i.pinimg.com/564x/c8/19/27/c81927085652cb617d42f8a23a15072d.jpg" alt=""> <%= user ? user.username : 'Unknown' %></h3>
+    <% if (user && user.about) { %>
+      <h3 class="user-description" style="margin-bottom: 0px;"><%= user.about %></h3>
+    <% } else { %>
+      <h3 class="user-description" style="display: none;"></h3>
+    <% } %>
+    <div class="follow-unfollow">
+      <p><%= user.followers.length %> Followers</p>
+      <p><%= user.following.length %> Following</p>
+    </div>
+
+    
+    <!-- Follow/Unfollow buttons -->
+    <% if (loggedInUser && loggedInUser.username !== user.username) { %>
+      <div class="follow-unfollow-container" id="followUnfollowContainer">
+        <% if (loggedInUser.following.includes(user._id)) { %>
+          <form id="unfollowForm" method="post">
+            <button class="unfollow following" onclick="toggleFollow('/<%= user.username %>/unfollow')" type="button">Unfollow</button>
+          </form>
+        <% } else { %>
+          <form id="followForm" method="post">
+            <button class="follow" onclick="toggleFollow('/<%= user.username %>/follow')" type="button">Follow</button>
+          </form>
+        <% } %>
+      </div>
+    <% } %>
+    <% if (loggedInUser && loggedInUser.username === user.username) { %>
+      <a href="/editProfile" class="button1">Edit Profile</a>
+    <% } %>
+  </div>
+  <div class="created-post-or-saved-post">
+    <a class="created-posts active" onclick="showPosts('created')">Created</a>
+    <a class="saved-posts" onclick="showPosts('saved')">Saved</a>
+  </div>
+
+  <div class="container-posts">
+  <div class="container-created active" id="postContainer">
+    <% if (user && user.posts && user.posts.length > 0) {
+      user.posts.forEach(function (post) { %>
+        <div class="box"  onmouseover="handleHover(this, event)" onmouseout="handleHover(this, event)">
+          <a href="/posts/<%= post._id %>">
+          <div class="image-overlay"></div>
+          <img src="/images/Upload/<%= post.image %>" loading="lazy" class="card-img-top" alt="...">
+          </a>
+          <div class="save-Boards">
+            <div class="userCreatedBoard">
+              <div class="boardTitle" onclick="toggleBoardsBtn(this, '<%= post._id %>')" data-toggle-btn="0">
+              <%= selectedFolder.name  %><i class="ri-arrow-down-s-line"></i>
+              </div>
+              <div class="boards-list" id="Board-<%= post._id %>">
+                <div class="header-bords-list">Save</div>
+                <div class="list-of-folder">
+                 <div class="results-boards"> All boards</div>              
+                 <% foldersList.forEach(folder => { %>
+                  <!-- Use a link or button to trigger the /select-folder route -->
+                  <a class="boars-items" href="/select-folder/<%= folder._id %>?redirectBack=/<%= user.username %>">
+                    <%= folder.name %>
+                  </a>
+                <% }); %>
+                
+              </div>
+              </div>
+            </div>
+            <div class="save-unsave">
+              <% if (selectedFolder && selectedFolder.posts && selectedFolder.posts.includes(post.id)) { %>
+                <form action="/unsave-from-folder?redirectBack=/<%= user.username %>" method="post">
+                  <input type="hidden" name="postId" value="<%= post.id %>">
+                  <% if (selectedFolder && selectedFolder._id) { %>
+                    <input type="hidden" name="folderId" value="<%= selectedFolder._id %>">
+                  <% } %>
+                  <button type="submit" class="unSave"> Saved </button>
+                </form>
+              <% } else { %>
+                <form action="/save-to-folder?redirectBack=/<%= user.username %>" method="post">
+                  <input type="hidden" name="postId" value="<%= post.id %>">
+                  <input type="hidden" name="folderId" value="<%= selectedFolder._id %>">
+                  <button type="submit" class="Save"> Save </button>
+                </form>
+              <% } %>
+              
+            </div>
+          </div>
+          <% if (loggedInUser && loggedInUser.username === user.username){ %>
+          <h5 class="editImg" onclick="editFormButton('<%= post._id %>')"><i class="ri-pencil-fill"></i></h5>
+          <% } %>
+          <div class="edit-post-cover" id="editPostForm_<%= post._id %>">
+            <div class="edit-posts-of-user">
+              <div class="Heading-of-post-edit">
+              <h1>Edit Post</h1>
+              <i class="ri-close-fill" id="closeEditForm_<%= post._id %>"></i>
+            </div>
+            <form action="/editPost/<%= post._id %>" method="post"> 
+              <div class="container2">
+                <% if (loggedInUser && loggedInUser.username === user.username && error.length > 0){ %>
+                  <p class="error"><% error %></p>
+                <% } %>
+                <div class="input-details-of-posts"> 
+                  <div class="labels">Title</div>
+                  <input class="detail" class="title" type="text" name="caption" placeholder="Title" value="<%= post.imageText %>">
+                  <div class="labels">Description</div>
+                  <textarea type="text" name="description"  placeholder="Add a detail description" class="detail1"><%= post.description %></textarea><br />
+                  <div class="labels">Link</div>
+                  <input type="text" name="imageLink"  placeholder="link" class="detail" value="<%= post.imageLink%>" /><br/>
+                </div>
+                <input hidden type="submit" id="editedpostForm_<%= post._id %>">
+              </form>
+                <div class="delete-update-btn">
+                  <form id="deleteForm<%= post._id %>" onsubmit="deletePost('<%= post._id %>'); return false;">
+                    <button type="submit" class="delete-btn">Delete</button>
+                </form>
+                                 
+                  <button class="upbtn" id="submitEditPostForm_<%= post._id %>">Save</button> 
+                </div>
+              </div>              
+            </div>
+            <% if(post.imageLink) {%>
+              <a class="Link" href="<%= post.imageLink %>">
+                  <i class="ri-arrow-right-up-line"></i>
+              <h5 class="post-link"><%= post.imageLink %></h5>
+              </a>
+              <% } %>
+          </div>
+     </div>
+      <% }); %>
+    
+      <% } else if (loggedInUser && loggedInUser.username === user.username) { %>
+        <div class="no-post-of-currentUser" >
+        <p>Nothing to show...yet! Pins you create will live here.</p>
+        <a href="/createPost" class="create-pins-btn">Create Pin</a>
+        </div>
+      <% } else { %>
+        <div class="no-post-created-by-otherUser">No Pins yet, but there's tons of potential</div>
+      <% } %>
+  </div>
+
+  <div class="container-saved" id="postContainer">
+    <% if (user && user.defaultFolder.posts.length > 0 || folders && folders.length > 0) { %>
+      <% if (user && user.defaultFolder.posts.length > 0) { %>
+        <div class="box">
+          <a href="/folder/<%= user.defaultFolder._id %>">
+            <div class="imgcover">
+              <div class="image-overlay"></div>
+              <% user.defaultFolder.posts.slice(0, 1).forEach(function (post, index) { %>
+                <img class="board-cover-img0"
+                  src="<%= post.image ? '../images/Upload/' + post.image : '../images/Upload/Board_bg_img.jpg' %>"
+                  alt=""
+                />
+              <% }); %>
+              <div class="imgcoversub-img">
+                <% user.defaultFolder.posts.slice(1, 2).forEach(function (post, index) { %>
+                  <img class="board-cover-img1"
+                    src="<%= post.image ? '../images/Upload/' + post.image : '../images/Upload/Board_bg_img.jpg' %>"
+                    alt=""
+                  />
+                <% }); %>
+                <% user.defaultFolder.posts.slice(2, 3).forEach(function (post, index) { %>
+                  <img class="board-cover-img2"
+                    src="<%= post.image ? '../images/Upload/' + post.image : '../images/Upload/Board_bg_img.jpg' %>"
+                    alt=""
+                  />
+                <% }); %>
+              </div>
+            </div>
+            <div class="boards-name">
+              <%= user.defaultFolder.name %>
+            </div>
+            <div class="boards-pins-count">
+              <%= user.defaultFolder.posts.length %> pins
+            </div>
+          </a>
+        </div>
+      <% } %>
+    
+      <% if (folders && folders.length > 0) { %>
+        <% folders.forEach(function (folder) { %>
+          <% if (!folder.isPrivate || (loggedInUser && loggedInUser._id.equals(folder.user._id))) { %>            
+          <div class="box">
+            <a href="/folder/<%= folder._id %>">
+              <div class="imgcover">
+                <% if(folder.isPrivate) { %>
+                    <div class="private-icon">
+                      <i class="ri-lock-fill"></i>
+                    </div>
+                  <% } %>
+                <div class="image-overlay"></div>
+                <% folder.posts.slice(0, 1).forEach(function (post, index) { %>
+                  <img class="board-cover-img0"
+                    src="<%= post.image ? '../images/Upload/' + post.image : '../images/Upload/Board_bg_img.jpg' %>"
+                    alt=""
+                  />
+                <% }); %>
+                <div class="imgcoversub-img">
+                  <% folder.posts.slice(1, 2).forEach(function (post, index) { %>
+                    <img class="board-cover-img1"
+                      src="<%= post.image ? '../images/Upload/' + post.image : '../images/Upload/Board_bg_img.jpg' %>"
+                      alt=""
+                    />
+                  <% }); %>
+                  <% folder.posts.slice(2, 3).forEach(function (post, index) { %>
+                    <img class="board-cover-img2"
+                      src="<%= post.image ? '../images/Upload/' + post.image : '../images/Upload/Board_bg_img.jpg' %>"
+                      alt=""
+                    />
+                  <% }); %>
+                </div>
+              </div>
+              <div class="boards-name">
+                <%= folder.name %>
+              </div>
+              <div class="boards-pins-count">
+                <%= folder.posts.length %> pins
+              </div>
+            </a>
+          </div>
+          <% } %>
+        <% }); %>
+      <% } %>
+    <% } %>
+    
+
+    <% if (loggedInUser && loggedInUser.username === user.username){ %>
+      <div class="hover-container">
+      <div class="create-boards-or-pins" onclick="creatBoardsPins()">
+        <i class="ri-add-fill"></i>
+      </div>
+        <div class="pins-boards-menu">
+          <p>Create</p>
+          <a href="/createPost" class="pins-menu">Pin</a>
+          <div class="boards-menu" onclick="createBoards()">Board</div>
+        </div>
+      </div>
+    
+      <div class="cover-boards-form">
+        <div class="board-form">
+          <i class="ri-close-fill close-boards" onclick="closeform()"></i>
+          <div class="board-header">Create board</div>
+          <form action="/create-board" method="post" class="board-form-deatils">
+            <div class="folder-input">
+            <label class="board-form-label">Name</label>
+            <input type="text" name="name" class="detail board-input" placeholder="Like &quot;Place to Go&quot; or &quot; Recipe to Make&quot;" required>
+            </div>
+            <div class="private-board-checkout">
+              <div class="label-privte">Keep this board secret</div>
+              <label class="keep-private" for="privateCheckbox">So only you and collaborators can see it.<a href="#"> Learn more </a>
+                <input type="checkbox" name="isPrivate" class="keep-private" id="privateCheckbox">
+                <span class="checkmark"></span>
+            </label>
+            </div>
+            <button type="submit" class="upbtn creatBtn-board">Create</button>
+          </form>
+        </div>
+      </div>
+      <% } %>
+  </div>
+   
+ 
+</div>
+</div>
+</div>
+
+
+
+<%- include('./partials/footer',  { customScript: '/javascripts/profile.js' }) %>

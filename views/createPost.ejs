@@ -1,0 +1,45 @@
+<%- include('./partials/header', { customStyles: '/stylesheets/createPost.css' }) %>
+<div class="main">
+    <div class="headerPin">
+        Create Pin
+    </div>
+<form action="/upload" method="post" enctype="multipart/form-data">
+   
+<div class="container">
+    <% if (error.length > 0){ %>
+        <p class="error"><%= error %></p>
+    <% } %>
+    <div class="main-container-for-upload-form">
+   <div class="container0">
+    <input hidden type="file" id="imageInput" accept="image/*" name="file" onchange="previewImage(event)">
+    <div id="imageBox" class="imageContainer">
+            <div class="uploadIcon">
+                <div class="icon">
+                    <i class="ri-arrow-up-line"></i>
+                </div>
+                <div class="upload-messege">Choose a file or drag and drop it here</div>
+            </div>
+            <div class="upload-instruction">We recommend using high quality .jpg files less than 20MB or .mp4 files less than 200MB</div>
+    </div>
+    <div class="container1">
+        <div class="box">
+            <img class="uploadImg" id="imagePreview" src="#" alt="Image Preview">
+        </div>
+    </div>
+</div>
+<div class="container2">
+    <div class="labels">Title</div>
+    <input class="detail" class="title" type="text" name="caption" placeholder="Title">
+    <div class="labels">Description</div>
+    <textarea type="text" name="description"  placeholder="Add a detail description" class="detail1" /></textarea><br />
+    <div class="labels">Link</div>
+    <input type="text" name="imageLink"  placeholder="link" class="detail" /><br />
+</div>
+</div>
+</div>
+    <input class="upbtn" type="submit" value="Publish">
+</form>
+</div>
+
+<%- include('./partials/footer', { customScript: '/javascripts/createPost.js' }) %> 
+

@@ -1,0 +1,58 @@
+<%- include('./partials/header', {customStyles : '/stylesheets/feedStyle.css'}) %>
+<div class="single-folder-header"><%= folder.name %></div>
+<div class="single-Board-total-pins"><%= folder.posts.length %> Pins</div>
+<div class="container1">
+    <% folder.posts.forEach(function (post) { %>
+      <div class="box" onmouseover="handleHover(this, true)" onmouseout="handleHover(this, false)">
+        <a href="/posts/<%= post._id %>">
+          <div class="image-overlay"></div>
+          <img src="/images/Upload/<%= post.image %>" class="card-img-top" loading="lazy" alt="...">
+        </a>
+        <div class="save-Boards">
+          <div class="userCreatedBoard">
+            <div class="boardTitle" onclick="toggleBoardsBtn(this, '<%= post._id %>')" data-toggle-btn="0">
+            <%= selectedFolder.name  %><i class="ri-arrow-down-s-line"></i>
+            </div>
+            <div class="boards-list" id="Board-<%= post._id %>">
+              <div class="header-bords-list">Save</div>
+              <div class="list-of-folder">
+               <div class="results-boards"> All boards</div>              
+              <% folders.forEach(folder => { %>
+               <!-- Use a link or button to trigger the /select-folder route -->
+               <a class="boars-items" href="/select-folder/<%= folder._id %>?redirectBack=/folder/<% folder._id %>">
+                  <%= folder.name %>
+               </a>              
+              <% }); %>
+            </div>
+            </div>
+          </div>
+          <div class="save-unsave">
+            <% if(selectedFolder && selectedFolder.posts.includes(post.id)) { %>
+            <form action="/unsave-from-folder?redirectBack=/folder/<%= folder._id %>" method="post">
+              <input type="hidden" name="postId" value="<%= post.id %>">
+              <% if(selectedFolder && selectedFolder._id) { %>
+                <input type="hidden" name="folderId" value="<%= selectedFolder._id %>">
+              <% } %>
+               
+              <button type="submit" class="unSave"> Saved </button>
+            </form>
+            <% } else { %>
+            <form action="/save-to-folder?redirectBack=/folder/<%= folder._id %>" method="post">
+              <input type="hidden" name="postId" value="<%= post.id %>">
+              <input type="hidden" name="folderId" value="<%= selectedFolder._id %>">
+              <button type="submit" class="Save"> Save </button>
+            </form>
+            <% } %>
+          </div>
+        </div>
+        <% if(post.imageLink) {%>
+        <a class="Link" href="<%= post.imageLink %>">
+            <i class="ri-arrow-right-up-line"></i>
+        <h5 class="post-link"><%= post.imageLink %></h5>
+        </a>
+        <% } %>
+    </div>
+    <% }); %>
+  </div>
+
+<%- include('./partials/footer', {customScript: '/javascripts/feed.js'}) %> 

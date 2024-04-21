@@ -1,0 +1,70 @@
+<%- include('./partials/header', { customStyles: '/stylesheets/style.css' }) %>
+ 
+<div class="main-page">
+<div class="container1">  
+  <% imageUrls.forEach(function(imageUrl) { %>
+    <div class="box">
+      <img src="<%= imageUrl %>" alt="image">
+    </div>
+  <% }); %>
+</div> 
+<div class="darker"></div>
+
+  <div class="container">
+    <div class="content">
+      <!--pinterest logo-->
+      <img src="https://i.pinimg.com/originals/d3/d1/75/d3d175e560ae133f1ed5cd4ec173751a.png" alt="pin logo" class="img1" />
+      <p class="header" >Welcome to Pinterest</p>
+      <p class="error" id="passwordError"></p>
+      <% if(error.length > 0) { %>
+        <p class="error"><%= error %></p>
+      <% } %>
+      <form action="/register" method="post" onsubmit="return validatePassword()">
+      <input type="text" name="fullname"  placeholder="Full Name" class="detail" /><br />
+      <input type="text" name="username"  placeholder="UserName" class="detail" /><br />
+      <input type="email" name="email" placeholder="Email" class="detail" /><br />
+      <div class="passwod">
+        <input type="password" name="password" placeholder="Password" id="passwordField" class="detail" />
+        <i class="toggle-password ri-eye-off-fill" onclick="togglePasswordVisibility()"></i>
+      </div>
+      <div class="passwod">
+        <input type="password" name="confirmPassword" placeholder="Confirm Password" id="confirmPasswordField" class="detail" />
+        <i class="toggle-confirm-password ri-eye-off-fill"  onclick="toggleConfirmPasswordVisibility()"></i>
+      </div>
+      <input type="submit" class="btn int" value="Register Account">
+      </form> 
+
+      <p class="or">OR</p>
+      <button class="btn fbk">
+        <i
+          class="ri-meta-fill"
+          style="color: white; padding-right: 20px"
+        ></i
+        ><a href="#">Continue with Meta</a></button
+      ><br />
+      <button class="btn ggl">
+        <i
+          class="ri-google-fill"
+          style="color: white; padding-right: 10px"
+        ></i
+        ><a href="#">Continue with Google</a>
+      </button>
+
+      <footer>
+        <p>
+          By continuing, you agree to Pinterest's
+          <b>Terms of Service, Privacy policy.</b>
+        </p>
+        <hr />
+        <p>Already have a account on Pinterest? <a href="/login">Login in</a></p>
+      </footer>
+    </div>
+  </div>
+
+  <div class="container2">
+    Sign up to <br> get your <br> ideas
+  </div>
+
+  <a href="/login" class="upbtn">Log In</a>
+</div>
+<%- include('./partials/footer', {customScript: '/javascripts/script.js'}) %>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="/images/Upload/favicon.ico" type="image/x-icon">
+  <title>Pinterest</title>
+  <link rel="stylesheet" href="/stylesheets/header.css">
+  <% if (typeof customStyles !== 'undefined') { %>
+    <link rel="stylesheet" href="<%= customStyles %>">
+  <% } %>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.0.1/remixicon.css" integrity="sha512-ZH3KB6wI5ADHaLaez5ynrzxR6lAswuNfhlXdcdhxsvOUghvf02zU1dAsOC6JrBTWbkE1WNDNs5Dcfz493fDMhA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+  <% if (showNavbar) { %>
+    <!-- Include your navbar HTML or EJS partial here -->
+    <nav>
+        <div class="navbar">
+          <div class="icon1">
+            <img src="https://i.pinimg.com/originals/d3/d1/75/d3d175e560ae133f1ed5cd4ec173751a.png" alt="icon" class="img2">
+          </div>
+          <a href="/feed" class="navItem">Home</a>
+          <a  href="/createPost" class="navItem">Create</a>
+          <div class="search">
+            <i class="ri-search-line"></i>
+            <input class="searchInput" type="text" id="searchInput" placeholder="Search">
+            <div id="searchResults" class="searchResults" style="display: none;"> 
+            </div>
+          </div>
+          <a href="/logout" class="navItem">Logout</a>
+          <a href="/profile" class="navItem">Profile</a>
+        </div>
+    </nav>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.2/axios.min.js" integrity="sha512-b94Z6431JyXY14iSXwgzeZurHHRNkLt9d6bAHt7BZT38eqV+GyngIi/tVye4jBKPYQ2lBdRs0glww4fmpuLRwA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  <% } %>
